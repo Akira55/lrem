@@ -4,10 +4,54 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "README-"
-)
+
+
+書き換えたが期待通りに動かない。
+取り敢えず、作業途中のものをおく。
+
+テストコードは例えば、HansenのRBCのパラメータを用いれば、以下になる。
+
+```{r, eval=FALSE}
+
+E <- matrix(c(-0.04384211,  0.06263158,  0.04384211, -1.05263158,
+              0.        ,  0.        ,  0.        ,  0.        ,
+              1.        ,  0.        ,  0.        ,  0.        ,
+              0.        ,  1.        ,  0.        ,  0.        ),
+            byrow = TRUE, nrow = 4)
+
+A <- matrix(c(0.       ,  0.        ,  0.        , -1.05263158,
+              0.3       ,  1.        , -0.72012357, -1.       ,
+              1.05263158,  0.20877193,  0.14614035, -0.19877193,
+              0.        ,  0.95      ,  0.        ,  0.       ),
+            byrow = TRUE, nrow = 4)
+
+
+steps <- 200
+t <- steps
+x0 <- array(0, dim = c(2, 1))
+u <- array(0, dim = c(steps))
+for(i in 2:steps){
+  u[i] <- 0.01
+}
+
+out <- simulate(A, E, x0, t, u)
+
+#パラメータ
+cb <- 0.5511920622464518
+kb <- 2.772987427012156
+nb <- 0.29583592293349903
+zb <- 1.
+
+pre <- 1:2
+x <- out[, pre]
+K1 <- kb +  x * kb
+Z1 <- zb +  x * zb
+N1 <- nb +  x * nb
+C1 <- cb +  x * cb
+
+plot(K1[,1])
+plot(Z1[,1])
+plot(N1[,1])
+plot(C1[,1])
+
 ```
