@@ -1,0 +1,13 @@
+Package: lrem
+Title: Compute a rational expectation model using Klein(2000)
+Version: 0.0.0.9000
+Authors@R: person("Akira", "Matsui", email = "159e112e@stu.kobe-u.ac.jp", role = c("aut", "cre"))
+Description: This package is an implimentation of QZ decomposition in Klein(2000). 
+             This package mainly depends on QZ package and offer a simulation 
+             function for hansen RBC model. 
+Depends: R (>= 3.3.3)
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Imports: QZ (>= 0.1.5)
