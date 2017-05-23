@@ -1,41 +1,48 @@
 
-qz_klein <- function(A,E) {
-  #' QZ decompose of pair matrixes A and E
-  #'
-  #' @param A a legurar matrix that is the same size as E
-  #' @param E a legurar matrix that is the same size as E
-  #'
-  #' @importFrom QZ qz
-  #' @importFrom QZ qz.dtgsen
-  #'
-  # Args:
-  #    A and E: a pair of the same size matrixes
-  # Returns
-  #  Omega_x, Omega_u, Omega_y, Psi_x, Psi_y: coefficient matrixes
-  #
-  # QZ decomposition
-  ret0 <- qz(A, E)
-  #Decomposition elements
-  alpha = ret0$ALPHA
-  beta = ret0$BETA
-  S = ret0$S
-  T = ret0$T
-  Q = ret0$Q
-  Z = ret0$Z
-  # Making eignvalue according to the order in Klein(2000)
-  select  <- abs(alpha) < abs(beta)
-  ret <- qz.dtgsen(S, T, Q, Z, select = select)
-  eig <- ret$ALPHAR / ret$BETA
 
-  decom <- list(S="matrix", T="matrix", Q="matrix", Z="matrix", eig <- "array")
-  decom$S <- ret$S
-  decom$T <- ret$T
-  decom$Q <- ret$Q
-  decom$Z <- ret$Z
-  decom$eig <- eig
+#' LRE solution method based on Klein (2000, JEDC)
+#'
+#' This function solves for a linear policy function for the Linear Rational
+#' Expectations model of \deqn{E (x_{t+1}, y_{t+1}) = A (x_{t}, y_{t})}{E
+#' (x_{t+1}, y_{t+1}) = A (x_{t}, y_{t})}, where x and y are predetermined and
+#' non-predetermined variables, respectively.
+#'
+#' @param A,E Square matrices of same size. \deqn{zE - A}{zE-A} is a regular
+#'   pencil
+#' @param nx The number of predetermined variables, \code{nx} is required
+#'   by the algorithm.
+#'
+#' @return List of two functions (g, h), passed to \code{\link{simulate}}
+#' @export
+#'
+#' @references Klein (2000, JEDC) \link{https://doi.org/10.1016/S0165-1889(99)00045-7}
+#'
+lre_auto_klein <- function(A, E, nx) {
 
-  return(decom)
+  q <- qz(A, E)
+  ns <- num_stable(q$ALPHA, q$BETA)
+
+  bk_condition(nx, ns, silent = FALSE)
+
+  n <- dim(A)[1]
+  stbl <- 1:ns
+  pre <- 1:nx
+  npr <- (nx + 1):n
+
+  S_ss <- q$S[stbl, stbl]
+  T_ss <- q$T[stbl, stbl]
+  Z_1s <- q$Z[pre, stbl]
+  Z_2s <- q$Z[npr, stbl]
+
+  g <- function(x) Z_2s %*% solve(Z_1s, x)
+  h <- function(x) x1 <- Z_1s %*% solve(S_ss, T_ss) %*% solve(Z_1s, x)
+
+  list(g, h)
 }
+
+
+
+
 
 klein_coefficients_from <- function(decom){
   #' Making parameters accrding Klein(200)
@@ -205,81 +212,3 @@ reverse_2dim_array <- function(original) {
 }
 
 
-h <- function(x1, u, coefficients, y) {
-  #' h a function that computes the predetermined of the next period
-  #' @param x1 the predetermied variable
-  #' @param u shocks
-  #' @param coefficients coeffients matrixes that is provid by klein_coefficients_from()
-  #' @param y an valu that from an array computed by yu()
-  # Returns:
-  #    x1: the non-predetermined
-
-  Omega_x <- coefficients$Omega_x
-  Omega_u <- coefficients$Omega_u
-  Omega_y <- coefficients$Omega_y
-
-
-  #x1[,i+1] <- Omega_x %*% x1[,i] + Omega_u * u[i] + Omega_y %*% y[,i+1]
-  x1 <- Omega_x %*% x1 + Omega_u * u + Omega_y %*% y
-  return(x1)
-}
-
-
-g <- function(x1, coefficients, y) {
-  #' a function that computes the non-predetermined from the predetermined
-  #'
-  #' @param x1 the predetermied variable
-  #' @param coefficients coeffients matrixes that is provid by klein_coefficients_from()
-  #' @param y an valu that from an array computed by yu()
-  #'
-  # Returns:
-  #    x1: the non-predetermined
-
-  Psi_x <- coefficients$Psi_x
-  Psi_y <- coefficients$Psi_y
-
-  #x2[,i+1] <- Psi_x %*% x1[,i] + Psi_y %*% y[,i]
-  x2 <- Psi_x %*% x1 + Psi_y %*% y
-  return(x2)
-}
-
-
-simulate <- function(A, E, g, h, x0, t, u) {
-  #' simulate a model using function that decides pre and non-pre determinant variables
-  #'
-  #' @param A a legular matrix that is the same size as E
-  #' @param E a legurar matrix that is the same size as E
-  #' @param g a function that computes the non-predetermined from the predetermined
-  #' @param h a function that computes the predetermined of the next period
-  #' @param x0 an initial condition
-  #' @param t a number of times to caluculate
-  #' @param u an array that contains shocks
-  #'
-  #' @export
-  #'
-  # Return:
-  #     out: an matrix that contains simulation result
-
-  #関数g,h に必要
-  decom <- qz_klein(A,E)
-  coefficients <- klein_coefficients_from(decom)
-  y <- yu(u, decom)
-
-  n1 <- length(x0)
-  n2 <- length(g(x0, coefficients, y[,1]))
-
-  #the number of pre and non-predeterminant variables
-  pre <- 1:n1
-  npr <- (n1 + 1):(n1 + n2)
-  # an array to store them
-  out <- matrix(0, t, n1 + n2)  # Zero matrix for simulation output
-
-  out[1, pre] <- x0     # Initial Condition
-  out[1, npr] <- g(x0, coefficients, y[,1])  # Eq. (2.1)
-
-  for (i in 1:(t - 1)) {
-    out[i + 1, pre] <- h(out[i,pre], u[i], coefficients, y[, i+1])
-    out[i + 1, npr] <- g(out[i+1,npr], coefficients, y[,i])
-  }
-  return(out)
-}
