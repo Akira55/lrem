@@ -47,7 +47,7 @@ simulate_ssr <- function(g, h, x0, t) {
   out[1, npr] <- g(x0)  # Eq. (2.1)
 
   for (i in 1:(t - 1)) {
-    out[i + 1, pre] <- h(out[i, ])         # Eq. (2.2)
+    out[i + 1, pre] <- h(out[i, pre])         # Eq. (2.2)
     out[i + 1, npr] <- g(out[i + 1, pre])  # Eq. (2.1)
   }
   out
