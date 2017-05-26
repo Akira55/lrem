@@ -15,7 +15,7 @@
 #' @return List of two functions (g, h), passed to \code{\link{simulate}}
 #' @export
 #'
-#' @references Klein (2000, JEDC) \link{https://doi.org/10.1016/S0165-1889(99)00045-7}
+#' @references Klein (2000, JEDC) \url{https://doi.org/10.1016/S0165-1889(99)00045-7}
 #'
 lre_auto_klein <- function(A, E, nx) {
 
