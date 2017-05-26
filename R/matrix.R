@@ -18,16 +18,30 @@ schur <- function(A) {
 #' QZ decomposition
 #'
 #' Real QZ decomposition. Weakly stable generalized eigenvalues (in
-#' discrete-time) are collected at the upper-left corner.
+#' discrete-time) are collected at the upper-left corner. A pencil (zE - A) is
+#' converted to (zS - T).
 #'
-#' @param A,B Sqaure matrices of same size. (A, B) is a regular pencil.
-#' @return QZ decomposition.
+#' @param A,E Square matrices of same size.
+#' @return QZ decomposition. See Note for additional information.
 #'
-qz <- function(A, B) {
-  q <- QZ::qz(A, B)
+#' @note The matrix labels for the returned values follow those of Klein (2000)
+#'   \url{https://doi.org/10.1016/S0165-1889(99)00045-7}
+#'   and Kenji Sato's lecture slides
+#'   \url{https://www.kenjisato.jp/teaching/ed/2017/}. In particular, \code{S}
+#'   and \code{T} returned by this function have reversed roles compared to
+#'   \code{QZ::qz}
+#'
+qz <- function(A, E) {
+  q <- QZ::qz(A, E)
 
   # Eigenvals in the Closed Unit Disk are collected at the upper-left corner
   cud <- abs(q$ALPHA) < abs(q$BETA)
   ret <- QZ::qz.dtgsen(q$S, q$T, q$Q, q$Z, select = cud)
+
+  s <- ret$S
+  t <- ret$T
+  ret$S <- t
+  ret$T <- s
+
   return(ret)
 }
