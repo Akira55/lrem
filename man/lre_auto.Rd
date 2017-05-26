@@ -28,7 +28,7 @@ E) is used.
 }
 \references{
 Klein (2000, JEDC)
-  \link{https://doi.org/10.1016/S0165-1889(99)00045-7}
+  \url{https://doi.org/10.1016/S0165-1889(99)00045-7}
 }
 \seealso{
 \code{\link{lre_auto_klein}}, \code{\link{lre_auto_bk}}

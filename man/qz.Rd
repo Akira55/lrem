@@ -4,15 +4,24 @@
 \alias{qz}
 \title{QZ decomposition}
 \usage{
-qz(A, B)
+qz(A, E)
 }
 \arguments{
-\item{A, B}{Sqaure matrices of same size. (A, B) is a regular pencil.}
+\item{A, E}{Square matrices of same size.}
 }
 \value{
-QZ decomposition.
+QZ decomposition. See Note for additional information.
 }
 \description{
 Real QZ decomposition. Weakly stable generalized eigenvalues (in
-discrete-time) are collected at the upper-left corner.
+discrete-time) are collected at the upper-left corner. A pencil (zE - A) is
+converted to (zS - T).
+}
+\note{
+The matrix labels for the returned values follow those of Klein (2000)
+  \url{https://doi.org/10.1016/S0165-1889(99)00045-7}
+  and Kenji Sato's lecture slides
+  \url{https://www.kenjisato.jp/teaching/ed/2017/}. In particular, \code{S}
+  and \code{T} returned by this function have reversed roles compared to
+  \code{QZ::qz}
 }

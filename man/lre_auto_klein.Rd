@@ -23,5 +23,5 @@ Expectations model of \deqn{E (x_{t+1}, y_{t+1}) = A (x_{t}, y_{t})}{E
 non-predetermined variables, respectively.
 }
 \references{
-Klein (2000, JEDC) \link{https://doi.org/10.1016/S0165-1889(99)00045-7}
+Klein (2000, JEDC) \url{https://doi.org/10.1016/S0165-1889(99)00045-7}
 }
