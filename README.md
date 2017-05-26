@@ -1,38 +1,39 @@
----
-output: github_document
----
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "README-"
-)
-```
-
-# lrem
+lrem
+====
 
 The goal of lrem is to ...
 
-## Installation
+Installation
+------------
 
 You can install lrem from github with:
 
-```{r gh-installation, eval = FALSE}
+``` r
 # install.packages("devtools")
 devtools::install_github("Akira55/lrem")
 ```
 
-## Example
+Example
+-------
 
 This is a basic example which shows you how to solve a common problem:
 
-```{r example}
+``` r
 library("lrem")
+#> 
+#> Attaching package: 'lrem'
+#> The following object is masked from 'package:stats':
+#> 
+#>     simulate
 library("ggplot2")
 library("cowplot")
+#> 
+#> Attaching package: 'cowplot'
+#> The following object is masked from 'package:ggplot2':
+#> 
+#>     ggsave
 
 # Extended E matrix
 E_ <- matrix(c( -0.04384211, 0.06263158, 0.04384211, -1.05263158,
@@ -85,3 +86,5 @@ plot.c <- ggplot(result) + geom_line(aes(x = t, y = C))
 plot_grid(plot.k, plot.z, plot.n, plot.c, 
           labels = c("K", "Z", "N", "C"), ncol = 2)
 ```
+
+![](README-example-1.png)
