@@ -36,10 +36,6 @@ lre_auto_klein <- function(A, E, nx) {
   g <- function(x) Z_2s %*% solve(Z_1s, x)
   h <- function(x) Z_1s %*% solve(S_ss, T_ss) %*% solve(Z_1s, x)
 
-  Functions <- list(g = "function", h = "function")
-  Functions$g <- g
-  Functions$h <- h
-
-  return(Functions)
+  list(g = g, h = h)
 }
 
