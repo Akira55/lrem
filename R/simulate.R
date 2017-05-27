@@ -112,6 +112,9 @@ adjust_input_length <- function(e, t) {
   # If t is NULL, then nrow(e) + 1 is used as t
   if (is.null(t)) return(list(e = e, t = nrow(e) + 1))
 
+  # e is NULL means zero input
+  if (is.null(e)) return(list(e = matrix(0, t - 1), t = t))
+
   # If simulation length, t, is longer than nrow(e),
   # fill missing inputs with zero
   if (nrow(e) < t - 1) {

@@ -60,12 +60,11 @@ policy <- lre_auto(A_, E_, nx = 2, x0 = x0)
 
 # Simulation output
 out <- simulate(policy$g, policy$h, x0, steps)
+#> NULL
+#> Shock vector has fewer components than state vector.
 
 # Steady states
-ss <- c(0.5511920622464518,
-        2.772987427012156,
-        0.29583592293349903,
-        1)
+ss <- c(0.5511920622464518, 2.772987427012156, 0.29583592293349903, 1)
 
 # Convert percentage changes to levels
 for (i in 1:ncol(out)) {
