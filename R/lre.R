@@ -53,6 +53,67 @@ bk_condition <- function(nx, ns, silent = TRUE) {
 }
 
 
+# Construct extended coefficients
+extend_coeff <- function(A, E = NULL, B, Phi) {
+
+  new_dim <- dim(A) + dim(Phi)
+
+  if (is.null(E)) {
+    E_ <- NULL
+  } else {
+    E_ <- matrix(0, new_dim[1], new_dim[2])
+    E_[1:dim(Phi)[1], 1:dim(Phi)[2]] <- diag(1, ncol(Phi))
+    E_[(dim(Phi)[1] + 1):nrow(E_), (dim(Phi)[2] + 1):ncol(E_)] <- E
+  }
+
+  A_ <- matrix(0, new_dim[1], new_dim[2])
+  A_[1:dim(Phi)[1], 1:dim(Phi)[2]] <- Phi
+  A_[(dim(Phi)[1] + 1):nrow(A_), 1:dim(Phi)[2]] <- B
+  A_[(dim(Phi)[1] + 1):nrow(A_), (dim(Phi)[2] + 1):ncol(A_)] <- A
+
+  return(list(A = A_, E = E_))
+}
+
+
+#' LRE solution method under AR inputs
+#'
+#' This function solves for a linear policy function for the Linear Rational
+#' Expectations model of \deqn{E (x_{t+1}, y_{t+1}) = A (x_{t}, y_{t}) +
+#' Bu_{t}}{E (x_{t+1}, y_{t+1}) = A (x_{t}, y_{t}) + Bu_{t}}, where x and y are
+#' predetermined and non-predetermined variables, respectively. The input term
+#' follows AR process.
+#'
+#' @param A,E Square matrices of same size. \deqn{zE - A}{zE-A} is a regular
+#'   pencil. E = NULL is understood as E = I.
+#' @param B coefficient matrix for input term
+#' @param Phi matrix. Inputs are assumed to follow VAR process u_{t+1} = Phi %*%
+#'   u_{t} + epsilon_{t+1}
+#' @param nx,ny,x0 The number of predetermined variables, \code{nx}, is required
+#'   by the algorithm. It is passed by \code{nx} or computed from the number of
+#'   the non-predetermined \code{ny}, or the initial vector \code{x0}
+#'
+#' @return List of two functions (g, h), passed to \code{\link{simulate}}
+#' @export
+#'
+lre_ar <- function(A, E = NULL, B, Phi, nx = NULL, ny = NULL, x0 = NULL) {
+
+  nx <- num_predet(A, nx, ny, x0) + ncol(Phi)
+
+  coeff <- extend_coeff(A, E, B, Phi)
+  A_ <- coeff$A
+  E_ <- coeff$E
+
+  if (is.null(E_)) {
+    lre_auto_bk(A_, nx = nx)
+  } else {
+    # Check if A_ and E_ have same size
+    stopifnot(all(dim(A_) == dim(E_)))
+
+    lre_auto_klein(A_, E_, nx = nx)
+  }
+}
+
+
 #' LRE solution method
 #'
 #' This function solves for a linear policy function for the Linear Rational

@@ -2,15 +2,15 @@
 % Please edit documentation in R/simulate.R
 \name{simulate}
 \alias{simulate}
-\alias{simulate_ssr_no_output}
+\alias{simulate_state_eqn}
 \alias{simulate_ssr}
 \title{Simulate state space model}
 \usage{
-simulate(g = NULL, h, x0, t)
+simulate(g = NULL, h, x0, t = NULL, e = NULL)
 
-simulate_ssr_no_output(h, x0, t)
+simulate_state_eqn(h, x0, t, e)
 
-simulate_ssr(g, h, x0, t)
+simulate_ssr(g, h, x0, t, e)
 }
 \arguments{
 \item{g}{maps predetermined to non-predetermined}
@@ -19,14 +19,19 @@ simulate_ssr(g, h, x0, t)
 
 \item{x0}{initial values for predetermined variables}
 
-\item{t}{length of simulation}
+\item{t}{integer, length of simulation}
+
+\item{e}{matrix, shock sequence}
 }
 \value{
 matrix comprising of simulation output
 }
 \description{
-This function simulates a state space model with a state equation,
-x_{t+1} = h(x_{t}), and output equation, y_{t} = g(x_{t}), from initial condition
-x_{0}. In macroeconomics, x is said to be the vector of predetermined variables and
-y the vector of non-predetermined variables.
+This function simulates a state space model with a state equation, x_{t+1} =
+h(x_{t}) + e_{t+1}, and output equation, y_{t} = g(x_{t}), from initial
+condition x_{0}. In macroeconomics, x is said to be the vector of
+predetermined variables and y the vector of non-predetermined variables.
+}
+\seealso{
+\code{\link{impulse}}
 }
