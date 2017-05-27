@@ -29,7 +29,9 @@ simulate <- function(g = NULL, h, x0, t = NULL, e = NULL) {
 simulate_state_eqn <- function(h, x0, t, e) {
 
   # Neaten shock sequence
-  e <- adjust_input(e, t, x0)
+  . <- adjust_input(e, t, x0)
+  e <- .$e
+  t <- .$t
 
   # Initial Condition
   n <- length(x0)
@@ -44,9 +46,10 @@ simulate_state_eqn <- function(h, x0, t, e) {
 
 #' @rdname simulate
 simulate_ssr <- function(g, h, x0, t, e) {
-
   # Neaten shock sequence
-  e <- adjust_input(e, t, x0)
+  . <- adjust_input(e, t, x0)
+  e <- .$e
+  t <- .$t
 
   # Predetermined variables
   n1 <- length(x0)
@@ -85,10 +88,7 @@ simulate_ssr <- function(g, h, x0, t, e) {
 #' @seealso \code{\link{simulate}}
 #'
 impulse <- function(g, h, x0, t, e1) {
-  e1 <- matrix(e1, nrow = 1)
-  suppressMessages(
-    e <- adjust_input(e1, t, x0)
-  )
+  e <- matrix(e1, nrow = 1)
   simulate(g, h, x0, t, e)
 }
 
@@ -96,26 +96,28 @@ impulse <- function(g, h, x0, t, e1) {
 # Modify shock sequence, e  -----
 
 adjust_input <- function(e, t, x0) {
-  e <- adjust_input_length(e, t)
-  e <- adjust_input_width(e, x0)
+  . <- adjust_input_length(e, t)
+
+  e <- adjust_input_width(.$e, x0)
+  list(e = e, t = .$t)
 }
 
 
 # Modify e so as to satisfy nrow(e) == t - 1
 adjust_input_length <- function(e, t) {
 
-  # If t is NULL, then nrow(e) + 1 is used as t
-  if (is.null(t)) return(list(e = e, t = nrow(e) + 1))
-
   # If both e and t are NULL, then raise an error
   if (is.null(e) && is.null(t)) stop("Neither e nor t is provided.")
+
+  # If t is NULL, then nrow(e) + 1 is used as t
+  if (is.null(t)) return(list(e = e, t = nrow(e) + 1))
 
   # If simulation length, t, is longer than nrow(e),
   # fill missing inputs with zero
   if (nrow(e) < t - 1) {
     enew <- matrix(0, t - 1, ncol(e))
     enew[1:nrow(e), ] <- e
-    return(enew)
+    return(list(e = enew, t = t))
   }
 }
 

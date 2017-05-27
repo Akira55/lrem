@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Gary Hansen's (1985) RBC model is characterized by 
+The following optimization problem summarizes Gary Hansen's (1985) RBC model:
 
 $$
 \begin{aligned}
@@ -59,6 +59,7 @@ $$
   q_2 &= q_0 - \delta
 \end{aligned}
 $$
+
 ## Log-Linearization
 
 By log-linearizing the first-order conditions around the steady state, 
@@ -69,35 +70,36 @@ $$
   &\begin{bmatrix}\alpha(\alpha-1)q_{0} & \alpha(1-\alpha)q_{0} & -(1-\delta+\alpha q_{0})\\
   1 & 0 & 0\\
   0 & 0 & 0
-  \end{bmatrix}\begin{bmatrix}\hat{K}_{t+1}\\
-  \hat{N}_{t+1}\\
-  \hat{C}_{t+1}
+  \end{bmatrix}
+  \begin{bmatrix}\hat{\!K}_{t+1}\\
+  \hat{\!N}_{t+1}\\
+  \hat{\!C}_{t+1}
   \end{bmatrix}\\
   &\qquad 
   =\begin{bmatrix}0 & 0 & -(1-\delta+\alpha q_{0})\\
   \alpha q_{0}+1-\delta & (1-\alpha)q_{0} & -q_{2}\\
   \alpha & -\frac{\alpha+(1-\alpha)\bar{N}}{1-\bar{N}} & -1
-  \end{bmatrix}\begin{bmatrix}\hat{K}_{t}\\
-  \hat{N}_{t}\\
-  \hat{C}_{t}
+  \end{bmatrix}\begin{bmatrix}\hat{K_{t}}\\
+  \hat{N_{t}}\\
+  \hat{C_{t}}
   \end{bmatrix}+\begin{bmatrix}-\alpha q_{0}\rho\\
   q_{0}\\
   1
-  \end{bmatrix}\hat{z}_{t}
+  \end{bmatrix}\hat{z_{t}}
 \end{aligned}
 $$
 with
 $$
-  \hat{z}_{t+1}=\rho\hat{z}_{t}+\epsilon_{t+1},
+  \hat{\!z}_{t+1}=\rho\hat{z_{t}}+\epsilon_{t+1},
 $$
 where 
 
 $$
-\hat{K}_{t}:=dK_{t}/\bar{K},\ \hat{z}_{t}:=dz_{t}/\bar{z},\ 
-\hat{C}_{t}:=dC_{t}/\bar{C},\ \hat{N}_{t}:=dN_{t}/\bar{N}
+\hat{K_{t}}:=dK_{t}/\bar{K},\ \hat{z_{t}}:=dz_{t}/\bar{z},\ 
+\hat{C_{t}}:=dC_{t}/\bar{C},\ \hat{N_{t}}:=dN_{t}/\bar{N}
 $$
 
-## Parameters
+## Parameters and coefficient matrices
 
 We will use the following parameter values.
 
@@ -125,6 +127,8 @@ zbar = 1
 ```
 
 
+The matrices $E, A, B, \Phi$ are given by
+
 ```{r}
 E = matrix(0, 3, 3)
 A = matrix(0, 3, 3)
@@ -150,15 +154,49 @@ B[3, 1] = 1
 ```
 
 
+## Simulation using **lrem**
 
-```{r}
+
+```{r, message=FALSE, warning=FALSE}
 library("lrem")
 library("ggplot2")
-library("cowplot")
 ```
-
 
 ```{r}
+policy <- lre_ar(A, E, B, Phi, nx = 1)
 
+steps <- 100
+out <- impulse(policy$g, policy$h, x0 = c(0, 0), t = steps, e1 = c(1, 0))
 ```
 
+Since the model is log-linearized, the simulated variables represent percentage 
+changes from the steady state. 
+
+You can convert the percentage deviations into levels as follows.
+
+```{r}
+# Steady states
+ss <- c(zbar, kbar, nbar, cbar)
+
+# Convert percentage changes to levels
+for (i in 1:ncol(out)) {
+  out[, i] <- ss[i] * out[, i] + ss[i]
+}
+```
+
+To plot these simulation result, it is convenient to convert the matrix into a
+dataframe. 
+
+```{r}
+# Convert matrix to dataframe
+result <- data.frame(out)
+names(result) <- c("Z", "K", "N", "C")
+result["t"] <- 0:(steps - 1)
+
+# Plotting
+ggplot(result) + geom_line(aes(x = t, y = K))
+ggplot(result) + geom_line(aes(x = t, y = Z))
+ggplot(result) + geom_line(aes(x = t, y = N))
+ggplot(result) + geom_line(aes(x = t, y = C))
+
+```
