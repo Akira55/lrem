@@ -201,26 +201,26 @@ out <- impulse(policy$g, policy$h, x0 = c(0,0), steps, e1 = c(1,0))
 ```{r}
 #plotting result
 result <- data.frame(out)
-names(result) <- c("d", "s", "output", "i", "n")
+names(result) <- c("ds", "ss", "output", "inf", "ni")
 result["t"] <- 0:(steps - 1)
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = d))
+ggplot(result) + geom_line(aes(x = t, y = ds)) +  ylab("Demand Shock")
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = s))
+ggplot(result) + geom_line(aes(x = t, y = ss)) + ylab("Supply Shock")
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = output))
+ggplot(result) + geom_line(aes(x = t, y = output))  + ylab("Output")
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = i))
+ggplot(result) + geom_line(aes(x = t, y = inf))  + ylab("Nominal Interest Rate")
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = n))
+ggplot(result) + geom_line(aes(x = t, y = ni)) + ylab("Inflation")
 ```
