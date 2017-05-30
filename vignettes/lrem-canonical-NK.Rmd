@@ -1,0 +1,226 @@
+---
+title: "Solving the canonical New-Keynesian model with lrem"
+author: "Akira Matsui"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+The following three equation models called the canonical New-Keynesian(NK) model:
+
+**Phillips curve (AS curve)**
+
+$$\pi_{t}	=\beta\mathbb{E}_{t}\pi_{t+1}+\kappa x_{t}+u_{t}^{S}$$
+
+**IS curve**
+$$x_{t}=\mathbb{E}_{t}x_{t+1}-\frac{1}{\sigma}\left(i_{t}-\mathbb{E}_{t}\pi_{t+1}\right)+u_{t}^{D}$$
+
+**Monetary policy(MP) rule**
+$$
+i_{t}=\alpha\pi_{t}+\iota x_{t}
+$$
+
+
+Assume AR shocks with $|\rho_{S}|$, $|\rho_{D}|<1$, $\mathbb{E}_{t}\epsilon_{t+1}^{S}=0$, and $\mathbb{E}_{t}\epsilon_{t+1}^{D}=0$: 
+$$
+\begin{aligned}
+  u_{t+1}^{S}	&=\rho_{S}u_{t}^{S}+\epsilon_{t+1}^{S}\\
+  u_{t+1}^{D}	&=\rho_{D}u_{t}^{D}+\epsilon_{t+1}^{D}
+\end{aligned}
+
+$$
+
+* $\pi_{t}$: log inflation rate
+* $x_{t}$: output gap
+* $i_{t}$: log gross nominal interest rate
+* $\sigma$: intertemporal elasticity of substitution
+* $\beta$: discount rate
+* $\kappa$: slope of the Phillips curve
+* $\alpha$ and $\iota$: monetary policy parameters
+
+
+
+All three endogenous variables, $\pi$, $x$ and $i$, are non-predetermined.
+
+## Matrix
+
+
+By sumarizing three equations(AS curb, IS curb and MP rule) and two AR shocks, we we obtain the following linear system.
+
+$$  
+  \begin{aligned}
+    \pi_{t}	=\beta\mathbb{E}_{t}\pi_{t+1}+\kappa x_{t}+u_{t}^{S}\\
+    x_{t}=\mathbb{E}_{t}x_{t+1}-\frac{1}{\sigma}\left(i_{t}-\mathbb{E}_{t}\pi_{t+1}\right)+u_{t}^{D}\\
+    i_{t}=\alpha\pi_{t}+\iota x_{t}\\
+    u_{t+1}^{S}	&=\rho_{S}u_{t}^{S}+\epsilon_{t+1}^{S}\\
+    u_{t+1}^{D}	&=\rho_{D}u_{t}^{D}+\epsilon_{t+1}^{D}
+  \end{aligned}
+$$
+
+By using the matrix definition of `lrem` package, the above five equation can be re-written as follow.
+
+\[
+\tilde{E}X_{t+1}=\tilde{A}X_{t}+\epsilon_{t+1}
+\]
+
+Where, 
+
+\[
+\phi\equiv\left[\begin{array}{cc}
+\rho_{d} & 0\\
+0 & \rho_{s}
+\end{array}\right],\ B\equiv\left[\begin{array}{cc}
+-1 & 0\\
+0 & -1\\
+0 & 0
+\end{array}\right],\ A\equiv\left[\begin{array}{ccc}
+1 & 0 & \frac{1}{\sigma}\\
+\kappa & -1 & 0\\
+\iota & \alpha & -1
+\end{array}\right],\ E=\left[\begin{array}{ccc}
+1 & \frac{1}{\sigma} & 0\\
+0 & \beta & 0\\
+0 & 0 & 0
+\end{array}\right]
+\]
+
+
+\[
+\tilde{A}\equiv\left[\begin{array}{cc}
+\phi\\
+B & A
+\end{array}\right]=\left[\begin{array}{ccccc}
+\rho_{d}\\
+ & \rho_{s}\\
+-1 &  & 1 &  & \frac{1}{\sigma}\\
+ & -1 & \kappa & -1\\
+ &  & \iota & \alpha & -1
+\end{array}\right],\ \tilde{E}\equiv\left[\begin{array}{cc}
+I\\
+ & E
+\end{array}\right]=\left[\begin{array}{ccccc}
+1\\
+ & 1\\
+ &  & 1 & \frac{1}{\sigma}\\
+ &  &  & \beta\\
+\\
+\end{array}\right]
+\]
+
+
+\[
+X_{t}=\left[\begin{array}{c}
+u_{t}^{d}\\
+u_{t}^{s}\\
+x_{t}\\
+\pi_{t}\\
+i_{t}
+\end{array}\right],\ \epsilon_{t}=\left[\begin{array}{c}
+\varepsilon_{t}^{d}\\
+\varepsilon_{t}^{s}\\
+0\\
+0\\
+0
+\end{array}\right].
+\]
+
+
+
+## Parameters and coefficient matrices
+
+We will use the following parameter values.
+
+
+```{r}
+alpha <- 2
+iota <- 0
+beta <- 0.99
+sigma <- 1
+kappa <- 0.132
+rhoS <- 0.9
+rhoD <- 0.9
+```
+
+
+**NOTE**: we will define $\tilde{E}$, $\tilde{A}$ as `A` and `B` in `lrem` package.
+
+The matrices $\tilde{E}$, $\tilde{A}$, $B$, $\phi$ are given by
+
+
+
+```{r}
+E = matrix(0, 3, 3)
+A = matrix(0, 3, 3)
+B = matrix(0, 3, 2)
+Phi = matrix(0, 2, 2)
+
+E[1, 1] = 1
+E[1, 2] = 1/sigma
+E[2, 2] = beta 
+
+A[1, 1] = 1
+A[1, 3] = 1/sigma
+A[2, 1] = kappa
+A[2, 2] = - 1
+A[3, 1] = iota
+A[3, 2] = alpha
+A[3, 3] = -1
+
+B[1, 1] = 1
+B[2, 2] = 1
+
+Phi[1, 1] = rhoD
+Phi[2, 2] = rhoS
+
+```
+
+```{r}
+E
+A
+B
+Phi
+```
+
+```{r}
+library("lrem")
+library("ggplot2")
+```
+
+```{r}
+#caluculte policy functions and impulus response
+policy <- lre_auto(A, E, B, Phi, ny = 5)
+
+steps <- 100
+out <- impulse(policy$g, policy$h, x0 =c(0,0,0,0,0) , t = steps, e1 = c(1, 0))
+```
+
+```{r}
+#plotting result
+result <- data.frame(out)
+names(result) <- c("demand shock", "supply schock", "output", "inflation", "nominal interest rate")
+result["t"] <- 0:(steps - 1)
+```
+
+```{r}
+ggplot(result) + geom_line(aes(x = t, y = demandShock))
+```
+
+```{r}
+ggplot(result) + geom_line(aes(x = t, y = supplyShock))
+```
+
+```{r}
+ggplot(result) + geom_line(aes(x = t, y = output))
+```
+
+```{r}
+ggplot(result) + geom_line(aes(x = t, y = inflation))
+```
+
+```{r}
+ggplot(result) + geom_line(aes(x = t, y = nominalInterestRate))
+```
