@@ -192,25 +192,25 @@ library("ggplot2")
 
 ```{r}
 #caluculte policy functions and impulus response
-policy <- lre_auto(A, E, B, Phi, ny = 5)
+policy <- lre_ar(A, E, B, Phi, nx = 0)
 
 steps <- 100
-out <- impulse(policy$g, policy$h, x0 =c(0,0,0,0,0) , t = steps, e1 = c(1, 0))
+out <- impulse(policy$g, policy$h, x0 = c(0,0), steps, e1 = c(1,0))
 ```
 
 ```{r}
 #plotting result
 result <- data.frame(out)
-names(result) <- c("demand shock", "supply schock", "output", "inflation", "nominal interest rate")
+names(result) <- c("d", "s", "output", "i", "n")
 result["t"] <- 0:(steps - 1)
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = demandShock))
+ggplot(result) + geom_line(aes(x = t, y = d))
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = supplyShock))
+ggplot(result) + geom_line(aes(x = t, y = s))
 ```
 
 ```{r}
@@ -218,9 +218,9 @@ ggplot(result) + geom_line(aes(x = t, y = output))
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = inflation))
+ggplot(result) + geom_line(aes(x = t, y = i))
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = nominalInterestRate))
+ggplot(result) + geom_line(aes(x = t, y = n))
 ```
