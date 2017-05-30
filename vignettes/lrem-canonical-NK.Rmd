@@ -26,12 +26,12 @@ $$
 
 
 Assume AR shocks with $|\rho_{S}|$, $|\rho_{D}|<1$, $\mathbb{E}_{t}\epsilon_{t+1}^{S}=0$, and $\mathbb{E}_{t}\epsilon_{t+1}^{D}=0$: 
+
 $$
 \begin{aligned}
   u_{t+1}^{S}	&=\rho_{S}u_{t}^{S}+\epsilon_{t+1}^{S}\\
   u_{t+1}^{D}	&=\rho_{D}u_{t}^{D}+\epsilon_{t+1}^{D}
 \end{aligned}
-
 $$
 
 * $\pi_{t}$: log inflation rate
@@ -146,12 +146,7 @@ rhoS <- 0.9
 rhoD <- 0.9
 ```
 
-
-**NOTE**: we will define $\tilde{E}$, $\tilde{A}$ as `A` and `B` in `lrem` package.
-
 The matrices $\tilde{E}$, $\tilde{A}$, $B$, $\phi$ are given by
-
-
 
 ```{r}
 E = matrix(0, 3, 3)
