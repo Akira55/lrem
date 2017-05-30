@@ -53,9 +53,10 @@ By sumarizing three equations(AS curb, IS curb and MP rule) and two AR shocks, w
 
 $$  
   \begin{aligned}
-    \pi_{t}	=\beta\mathbb{E}_{t}\pi_{t+1}+\kappa x_{t}+u_{t}^{S}\\
-    x_{t}=\mathbb{E}_{t}x_{t+1}-\frac{1}{\sigma}\left(i_{t}-\mathbb{E}_{t}\pi_{t+1}\right)+u_{t}^{D}\\
-    i_{t}=\alpha\pi_{t}+\iota x_{t}\\
+    \pi_{t}	&=\beta\mathbb{E}_{t}\pi_{t+1}+\kappa x_{t}+u_{t}^{S}\\
+    x_{t} &= \mathbb{E}_{t}x_{t+1}-\frac{1}{\sigma}\left(i_{t}-\mathbb{E}_{t}\pi_{t+1}\right)
+    +u_{t}^{D}\\
+    i_{t} &=\alpha\pi_{t}+\iota x_{t}\\
     u_{t+1}^{S}	&=\rho_{S}u_{t}^{S}+\epsilon_{t+1}^{S}\\
     u_{t+1}^{D}	&=\rho_{D}u_{t}^{D}+\epsilon_{t+1}^{D}
   \end{aligned}
@@ -201,7 +202,7 @@ out <- impulse(policy$g, policy$h, x0 = c(0,0), steps, e1 = c(1,0))
 ```{r}
 #plotting result
 result <- data.frame(out)
-names(result) <- c("ds", "ss", "output", "inf", "ni")
+names(result) <- c("ds", "ss", "og", "inf", "ni")
 result["t"] <- 0:(steps - 1)
 ```
 
@@ -214,7 +215,7 @@ ggplot(result) + geom_line(aes(x = t, y = ss)) + ylab("Supply Shock")
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = output))  + ylab("Output")
+ggplot(result) + geom_line(aes(x = t, y = og))  + ylab("Output Gap")
 ```
 
 ```{r}
