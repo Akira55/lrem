@@ -191,32 +191,32 @@ library("ggplot2")
 policy <- lre_ar(A, E, B, Phi, nx = 0)
 
 steps <- 100
-out <- impulse(policy$g, policy$h, x0 = c(0,0), steps, e1 = c(1,0))
+out <- impulse(policy$g, policy$h, x0 = c(0,0), steps, e1 = c(-1,0))
 ```
 
 ```{r}
 #plotting result
 result <- data.frame(out)
-names(result) <- c("ds", "ss", "og", "inf", "ni")
+names(result) <- c("dmand.shock", "supply.shock", "outcome.gap", "inflation", "nominal.interest")
 result["t"] <- 0:(steps - 1)
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = ds)) +  ylab("Demand Shock")
+ggplot(result) + geom_line(aes(x = t, y = dmand.shock)) +  ylab("Demand Shock")
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = ss)) + ylab("Supply Shock")
+ggplot(result) + geom_line(aes(x = t, y = supply.shock)) + ylab("Supply Shock")
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = og))  + ylab("Output Gap")
+ggplot(result) + geom_line(aes(x = t, y = outcome.gap))  + ylab("Output Gap")
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = inf))  + ylab("Nominal Interest Rate")
+ggplot(result) + geom_line(aes(x = t, y = inflation))  + ylab("Nominal Interest Rate")
 ```
 
 ```{r}
-ggplot(result) + geom_line(aes(x = t, y = ni)) + ylab("Inflation")
+ggplot(result) + geom_line(aes(x = t, y = nominal.interest)) + ylab("Inflation")
 ```
